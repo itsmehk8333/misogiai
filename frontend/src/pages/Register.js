@@ -101,7 +101,7 @@ const Register = () => {
         dateOfBirth: formData.dateOfBirth,
         phoneNumber: formData.phoneNumber.trim() || undefined
       };      await register(userData);
-      navigate('/dashboard');
+      navigate('/login');
     } catch (error) {
       // Error is handled by the store
       console.error('Registration failed:', error);

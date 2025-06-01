@@ -49,11 +49,21 @@ const useAuthStore = create(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        // Perform backend logout and clear all local storage
+        try {
+          await authService.logout();
+        } catch (err) {
+          console.warn('Logout API failed, continuing with local logout');
+        }
+        // Clear localStorage completely
+        window.localStorage.clear();
+        // Reset store state
         set({
           user: null,
           token: null,
           isAuthenticated: false,
+          loading: false,
           error: null
         });
       },      updateProfile: async (userData) => {

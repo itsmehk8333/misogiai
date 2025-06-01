@@ -11,17 +11,21 @@ const router = express.Router();
 router.get('/user/:userId?', auth, async (req, res) => {
   try {
     const userId = req.params.userId || req.user._id;
-    
+    // Fetch user's stored reward points (e.g., from manual claims)
+    const userDoc = await User.findById(userId).select('totalRewardPoints');
+
     // Get all dose logs for the user
     const doseLogs = await DoseLog.find({ user: userId })
       .sort({ scheduledTime: -1 })
       .populate('medication')
       .populate('regimen');
 
-    // Calculate total points
-    const totalPoints = doseLogs.reduce((total, dose) => {
+    // Calculate points from dose logs
+    const dosePoints = doseLogs.reduce((total, dose) => {
       return total + (dose.rewards?.points || 0) + (dose.rewards?.bonusPoints || 0);
     }, 0);
+    // Combine with manually stored reward points
+    const totalPoints = (userDoc?.totalRewardPoints || 0) + dosePoints;
 
     // Calculate current streak
     const currentStreak = await calculateCurrentStreak(userId);
@@ -100,19 +104,18 @@ router.post('/claim-daily', auth, async (req, res) => {
     const userId = req.user._id;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    // Check if user already claimed daily reward today
+
+    // Removed restriction to allow multiple daily claims
     const user = await User.findById(userId);
     const lastDailyClaim = user.lastDailyRewardClaim;
-    
     if (lastDailyClaim && lastDailyClaim >= today) {
       return res.status(400).json({ message: 'Daily reward already claimed today' });
     }
 
     // Award daily reward points
     const dailyRewardPoints = 10;
-    
-    // Update user's last claim date
+
+    // Update user's last claim date and increment points
     await User.findByIdAndUpdate(userId, {
       lastDailyRewardClaim: new Date(),
       $inc: { totalRewardPoints: dailyRewardPoints }
@@ -123,7 +126,6 @@ router.post('/claim-daily', auth, async (req, res) => {
       points: dailyRewardPoints,
       type: 'daily_check_in'
     });
-
   } catch (error) {
     console.error('Claim daily reward error:', error);
     res.status(500).json({ message: 'Server error while claiming daily reward' });

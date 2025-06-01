@@ -242,18 +242,11 @@ const RewardsCenter = () => {
               <p className="text-sm text-gray-600 mb-2">{reward.description}</p>
               <div className="flex items-center justify-between">
                 <span className="text-green-600 font-bold">+{reward.points} pts</span>
-                <button 
-                  onClick={reward.type === 'daily_login' ? handleClaimDailyReward : handleClaimDailyReward}
-                  disabled={reward.type === 'daily_login' && !canClaimDailyReward}
-                  className={`text-xs px-2 py-1 rounded-full transition-colors ${
-                    reward.type === 'daily_login' && canClaimDailyReward
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
-                      : reward.type === 'daily_login' 
-                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                        : 'bg-green-100 text-green-700 hover:bg-green-200'
-                  }`}
+                <button
+                  onClick={handleClaimDailyReward}
+                  className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200"
                 >
-                  {reward.type === 'daily_login' && !canClaimDailyReward ? 'Claimed' : 'Claim'}
+                  {loading ? 'Processing...' : 'Claim'}
                 </button>
               </div>
             </motion.div>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { sanitizeForJSON, validateJSON } from '../utils/jsonUtils';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://backend-xip8.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
